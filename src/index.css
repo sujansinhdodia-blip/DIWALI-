@@ -1,0 +1,159 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Poppins:wght@300;400;500;600;700&display=swap');
+
+@import "tailwindcss";
+
+/* Custom CSS Variables */
+:root {
+  --gold: #FFD700;
+  --saffron: #FF9933;
+  --magenta: #FF1493;
+  --royal-purple: #4B0082;
+  --warm-red: #DC143C;
+  --deep-orange: #FF6347;
+}
+
+/* Base Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(180deg, #0a0020 0%, #1a0040 30%, #2d1060 50%, #4a1a6b 65%, #7b2d5f 78%, #c44e2a 90%, #e8751a 100%);
+  color: white;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* Heading Font */
+.font-heading {
+  font-family: 'Cinzel Decorative', cursive;
+}
+
+/* Shimmer text effect */
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.text-shimmer {
+  background: linear-gradient(
+    90deg,
+    #FFD700 0%,
+    #FFF8DC 15%,
+    #FFD700 30%,
+    #FFA500 50%,
+    #FFD700 70%,
+    #FFF8DC 85%,
+    #FFD700 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: shimmer 3s linear infinite;
+}
+
+/* Glowing effect */
+@keyframes glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.6)); }
+  50% { filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.9)); }
+}
+
+.glow {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* Flickering flame */
+@keyframes flicker {
+  0%, 100% { transform: scale(1) rotate(-1deg); opacity: 1; }
+  25% { transform: scale(1.02) rotate(1deg); opacity: 0.9; }
+  50% { transform: scale(0.98) rotate(-0.5deg); opacity: 1; }
+  75% { transform: scale(1.01) rotate(0.5deg); opacity: 0.95; }
+}
+
+.flame-flicker {
+  animation: flicker 0.3s ease-in-out infinite;
+  transform-origin: bottom center;
+}
+
+/* Twinkling stars */
+@keyframes twinkle {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.3); }
+}
+
+/* Glass morphism */
+.glass {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+}
+
+/* Lantern sway */
+@keyframes sway {
+  0%, 100% { transform: rotate(-3deg); }
+  50% { transform: rotate(3deg); }
+}
+
+.sway {
+  animation: sway 3s ease-in-out infinite;
+  transform-origin: top center;
+}
+
+/* Falling petal */
+@keyframes float-down {
+  0% { transform: translateY(-10vh) rotate(0deg) translateX(0px); opacity: 1; }
+  50% { transform: translateY(50vh) rotate(180deg) translateX(30px); opacity: 0.8; }
+  100% { transform: translateY(110vh) rotate(360deg) translateX(-20px); opacity: 0; }
+}
+
+/* Rangoli rotate */
+@keyframes rangoli-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Sparkle trail */
+@keyframes sparkle-fade {
+  0% { transform: scale(1); opacity: 1; }
+  100% { transform: scale(0); opacity: 0; }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a0040;
+}
+
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #FFD700, #FF9933);
+  border-radius: 3px;
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* String lights */
+@keyframes light-glow {
+  0%, 100% { opacity: 0.6; filter: blur(0px); }
+  50% { opacity: 1; filter: blur(1px); }
+}
