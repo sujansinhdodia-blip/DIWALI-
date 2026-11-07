@@ -73,7 +73,7 @@ function App() {
 
       {/* Fixed elements */}
       <Lanterns />
-      <MusicToggle />
+      <MusicToggle autoPlayTrigger={diyaLit} />
 
       {/* Screen glow when diya is lit */}
       <AnimatePresence>

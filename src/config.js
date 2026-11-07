@@ -57,8 +57,8 @@ const config = {
   // Share message
   shareMessage: "🪔 Wishing you a very Happy Diwali from the Darbar Family! ✨ May your life be filled with light, love, and joy. Check out our Diwali greeting:",
 
-  // Site URL for sharing (update after deployment)
-  siteUrl: "https://diwali-darbar.vercel.app",
+  // Site URL for sharing
+  siteUrl: "https://sujansinhdodia-blip.github.io/DIWALI-/",
 };
 
 export default config;

@@ -1,118 +1,87 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
-export default function MusicToggle() {
+export default function MusicToggle({ autoPlayTrigger }) {
   const [playing, setPlaying] = useState(false);
-  const audioCtxRef = useRef(null);
-  const loopIntervalRef = useRef(null);
+  const audioRef = useRef(null);
 
-  const startFestiveSynth = () => {
-    const AudioContext = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContext) return;
+  // Initialize audio element
+  useEffect(() => {
+    const songUrl = `${import.meta.env.BASE_URL}diwali-song.mp4`.replace('//', '/');
+    const audio = new Audio(songUrl);
+    audio.loop = true;
+    audio.preload = 'auto';
+    audio.volume = 0.75;
 
-    if (!audioCtxRef.current) {
-      audioCtxRef.current = new AudioContext();
-    }
-    const ctx = audioCtxRef.current;
-    if (ctx.state === 'suspended') {
-      ctx.resume();
-    }
+    audio.addEventListener('play', () => setPlaying(true));
+    audio.addEventListener('pause', () => setPlaying(false));
+    audio.addEventListener('ended', () => setPlaying(false));
 
-    // Master volume
-    const masterGain = ctx.createGain();
-    masterGain.gain.setValueAtTime(0.15, ctx.currentTime);
-    masterGain.connect(ctx.destination);
-
-    // Warm Tanpura Drone (Sa - Pa - Sa' in D: ~146.8Hz, ~220Hz, ~293.6Hz)
-    const baseFreqs = [146.83, 220.0, 293.66, 440.0];
-    const oscillators = [];
-
-    baseFreqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, ctx.currentTime);
-
-      // Subtle detune for natural shimmer
-      osc.detune.setValueAtTime((idx - 1.5) * 4, ctx.currentTime);
-
-      gain.gain.setValueAtTime(0.06 / (idx + 1), ctx.currentTime);
-      osc.connect(gain);
-      gain.connect(masterGain);
-      osc.start();
-      oscillators.push(osc);
-    });
-
-    // Indian Classical Yaman / Bhupali scale bell notes: D, E, F#, A, B, D'
-    const melodyScale = [293.66, 329.63, 369.99, 440.0, 493.88, 587.33, 659.25, 739.99];
-
-    const playBell = () => {
-      if (!audioCtxRef.current || audioCtxRef.current.state === 'closed') return;
-      const noteFreq = melodyScale[Math.floor(Math.random() * melodyScale.length)];
-      const bellOsc = ctx.createOscillator();
-      const bellGain = ctx.createGain();
-
-      bellOsc.type = 'sine';
-      bellOsc.frequency.setValueAtTime(noteFreq, ctx.currentTime);
-
-      // Soft envelope
-      const now = ctx.currentTime;
-      bellGain.gain.setValueAtTime(0, now);
-      bellGain.gain.linearRampToValueAtTime(0.08, now + 0.05);
-      bellGain.gain.exponentialRampToValueAtTime(0.0001, now + 2.5);
-
-      bellOsc.connect(bellGain);
-      bellGain.connect(masterGain);
-
-      bellOsc.start(now);
-      bellOsc.stop(now + 2.6);
-    };
-
-    // Play initial bell
-    playBell();
-    // Play recurring ambient chime every 1.5 - 2.5 seconds
-    loopIntervalRef.current = setInterval(playBell, 1800);
+    audioRef.current = audio;
 
     return () => {
-      if (loopIntervalRef.current) clearInterval(loopIntervalRef.current);
-      oscillators.forEach(osc => {
-        try { osc.stop(); osc.disconnect(); } catch {}
-      });
-      masterGain.disconnect();
+      audio.pause();
+      audio.src = '';
     };
-  };
+  }, []);
 
-  const cleanupRef = useRef(null);
+  // When user triggers "Light the Diya", start playing festive song if not playing yet
+  useEffect(() => {
+    if (autoPlayTrigger && audioRef.current && !playing) {
+      audioRef.current.play().then(() => {
+        setPlaying(true);
+      }).catch((err) => {
+        console.log("Audio play prevented:", err);
+      });
+    }
+  }, [autoPlayTrigger]);
 
   const toggle = useCallback((e) => {
     e.stopPropagation();
+    if (!audioRef.current) return;
+
     if (playing) {
-      if (cleanupRef.current) {
-        cleanupRef.current();
-        cleanupRef.current = null;
-      }
-      if (audioCtxRef.current && audioCtxRef.current.state !== 'closed') {
-        audioCtxRef.current.suspend();
-      }
-      setPlaying(false);
+      audioRef.current.pause();
     } else {
-      cleanupRef.current = startFestiveSynth();
-      setPlaying(true);
+      audioRef.current.play().then(() => {
+        setPlaying(true);
+      }).catch((err) => {
+        console.error("Audio playback error:", err);
+      });
     }
   }, [playing]);
 
   return (
-    <button
-      onClick={toggle}
-      className={`fixed top-4 right-4 z-50 px-3.5 py-2 rounded-full glass flex items-center gap-2
-        hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer text-amber-300
-        ${playing ? 'border-amber-400/60 shadow-lg shadow-amber-400/20' : 'border-white/10'}`}
-      aria-label={playing ? 'Mute festive music' : 'Play festive music'}
-      title={playing ? 'Mute festive music' : 'Play festive music'}
-    >
-      <span className="text-lg sm:text-xl">{playing ? '🎶' : '🔇'}</span>
-      <span className="text-xs font-medium tracking-wide hidden sm:inline text-amber-200">
-        {playing ? 'Music: ON' : 'Play Music'}
-      </span>
-    </button>
+    <div className="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <button
+        onClick={toggle}
+        className={`group relative px-4 py-2.5 rounded-full glass flex items-center gap-2.5
+          hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer shadow-lg
+          ${playing 
+            ? 'bg-amber-500/25 border-amber-400 text-amber-300 shadow-amber-500/30 ring-2 ring-amber-400/40' 
+            : 'border-white/15 text-amber-200/90 hover:border-amber-400/50 hover:text-amber-200'}`}
+        aria-label={playing ? 'Mute Diwali Song' : 'Play Diwali Song'}
+        title={playing ? 'Mute Diwali Song' : 'Play Festive Diwali Song'}
+      >
+        {/* Equalizer bars animation when playing */}
+        {playing ? (
+          <div className="flex items-end gap-0.5 h-4 w-4">
+            <span className="w-1 bg-amber-300 rounded-full animate-[bounce_0.6s_ease-in-out_infinite]" style={{ height: '60%' }} />
+            <span className="w-1 bg-amber-300 rounded-full animate-[bounce_0.8s_ease-in-out_0.2s_infinite]" style={{ height: '100%' }} />
+            <span className="w-1 bg-amber-300 rounded-full animate-[bounce_0.5s_ease-in-out_0.4s_infinite]" style={{ height: '40%' }} />
+          </div>
+        ) : (
+          <span className="text-lg">🪔</span>
+        )}
+
+        <span className="text-xs font-semibold tracking-wide">
+          {playing ? 'Diwali Song: ON 🎶' : 'Play Diwali Song 🎵'}
+        </span>
+
+        {/* Pulse ring when playing */}
+        {playing && (
+          <span className="absolute -inset-0.5 rounded-full bg-amber-400/20 animate-ping pointer-events-none" />
+        )}
+      </button>
+    </div>
   );
 }
